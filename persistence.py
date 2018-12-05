@@ -28,23 +28,7 @@ class Ad(Base):
 def load_ads_from_json(json_filepath="ads.json"):
     with open(json_filepath) as json_file:
         ads_data = json.load(json_file)
-        ads = [
-            Ad(
-                id=ad_data.get("id"),
-                settlement=ad_data.get("settlement"),
-                under_construction=ad_data.get("under_construction"),
-                description=ad_data.get("description"),
-                price=ad_data.get("price"),
-                oblast_district=ad_data.get("oblast_district"),
-                living_area=ad_data.get("living_area"),
-                has_balcony=ad_data.get("has_balcony"),
-                address=ad_data.get("address"),
-                construction_year=ad_data.get("construction_year"),
-                rooms_number=ad_data.get("rooms_number"),
-                premise_area=ad_data.get("premise_area"),
-            )
-            for ad_data in ads_data
-        ]
+        ads = [Ad(**ad_data) for ad_data in ads_data]
         return ads
 
 
