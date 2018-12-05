@@ -45,7 +45,7 @@ def load_ads_from_json(json_filepath="ads.json"):
 
 class DBManager(AbstractContextManager):
     def __enter__(self):
-        engine = db.create_engine("sqlite:///:memory:", echo=False)
+        engine = db.create_engine("sqlite:///ads.db", echo=False)
         Base.metadata.create_all(engine)
         Session = sessionmaker()
         Session.configure(bind=engine)
