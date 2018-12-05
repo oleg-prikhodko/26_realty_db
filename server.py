@@ -1,23 +1,16 @@
 from flask import Flask, render_template
 
+from persistence import DBManager
+
 app = Flask(__name__)
 
-@app.route('/')
+
+@app.route("/")
 def ads_list():
-    return render_template('ads_list.html', ads=[{
-            "settlement": "Череповец",
-            "under_construction": False,
-            "description": '''Квартира в отличном состоянии. Заезжай и живи!''',
-            "price": 2080000,
-            "oblast_district": "Череповецкий район",
-            "living_area": 17.3,
-            "has_balcony": True,
-            "address": "Юбилейная",
-            "construction_year": 2001,
-            "rooms_number": 2,
-            "premise_area": 43.0,
-        }]*10
-    )
+    with DBManager() as db_manager:
+        ads = db_manager.get_ads()
+        return render_template("ads_list.html", ads=ads)
+
 
 if __name__ == "__main__":
     app.run()
