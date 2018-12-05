@@ -1,4 +1,5 @@
 import json
+from math import ceil
 
 import sqlalchemy as db
 from sqlalchemy.ext.declarative import declarative_base
@@ -37,16 +38,26 @@ def save_ads(ads):
     session.commit()
 
 
-def get_ads(settlement=None, price=0, max_ads=15, page=1):
-    start = (page - 1) * max_ads
+def construct_query(settlement, price):
     query = session.query(Ad)
     if settlement is not None:
         query = query.filter_by(settlement=settlement)
+    query = query.filter(Ad.price >= price)
+    return query
 
-    ads = query.filter(Ad.price >= price).order_by(Ad.price)[
-        start : start + max_ads
-    ]
+
+def get_ads(settlement=None, price=0, max_ads=15, page=1):
+    start = (page - 1) * max_ads
+    query = construct_query(settlement, price)
+    ads = query.order_by(Ad.price)[start : start + max_ads]
     return ads
+
+
+def get_total_pages(settlement=None, price=0, max_ads=15):
+    query = construct_query(settlement, price)
+    total_ads = query.count()
+    total_pages = ceil(total_ads / max_ads)
+    return total_pages
 
 
 if __name__ == "__main__":
@@ -55,7 +66,12 @@ if __name__ == "__main__":
     Session = sessionmaker()
     Session.configure(bind=engine)
     session = Session()
+
     save_ads(load_ads_from_json())
-    ads = get_ads("Вологда", 3000000)  # "Вологда"
+
+    print("Pages:", get_total_pages())
+    ads = get_ads()  # "Вологда"
     for ad in ads:
         print(ad.id, ad.settlement, ad.address, ad.price)
+
+    session.close()
