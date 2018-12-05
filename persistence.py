@@ -1,4 +1,5 @@
 import json
+from datetime import date
 from math import ceil
 
 import sqlalchemy as db
@@ -49,12 +50,17 @@ def save_ads(ads):
 
 def construct_query(settlement, price, new_buildings_only):
     query = session.query(Ad)
+
     if settlement is not None:
         query = query.filter_by(settlement=settlement)
+
     if new_buildings_only:
+        year_difference = 2
+        two_years_ago = date.today().year - year_difference
         query = query.filter(
             db.or_(
-                Ad.under_construction.is_(True), Ad.construction_year >= 2016
+                Ad.under_construction.is_(True),
+                Ad.construction_year >= two_years_ago,
             )
         )
     query = query.filter(Ad.price >= price)
