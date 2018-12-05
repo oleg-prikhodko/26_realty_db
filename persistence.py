@@ -43,8 +43,8 @@ def get_ads(settlement=None, price=0, max_ads=15, page=1):
     if settlement is not None:
         query = query.filter_by(settlement=settlement)
 
-    for ad in query.filter(Ad.price >= price)[start : start + max_ads]:
-        print(ad.id, ad.settlement, ad.address, ad.price)
+    ads = query.filter(Ad.price >= price)[start : start + max_ads]
+    return ads
 
 
 if __name__ == "__main__":
@@ -54,4 +54,6 @@ if __name__ == "__main__":
     Session.configure(bind=engine)
     session = Session()
     save_ads(load_ads_from_json())
-    get_ads("Вологда", 5000000)  # "Вологда"
+    ads = get_ads("Вологда", 5000000)  # "Вологда"
+    for ad in ads:
+        print(ad.id, ad.settlement, ad.address, ad.price)
