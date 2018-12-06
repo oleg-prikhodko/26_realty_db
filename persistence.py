@@ -1,5 +1,6 @@
 import argparse
 import json
+import sys
 from contextlib import AbstractContextManager
 from datetime import date
 from math import ceil, inf
@@ -142,4 +143,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     json_filepath = args.filepath
     with DBManager() as db_manager:
-        db_manager.save_ads(load_ads_from_json(json_filepath))
+        try:
+            db_manager.save_ads(load_ads_from_json(json_filepath))
+        except Exception as err:
+            sys.exit(err)
