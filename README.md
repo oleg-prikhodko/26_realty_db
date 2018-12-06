@@ -1,6 +1,23 @@
 # Real Estate Site
 
-{TODO. There will be project description}
+Real estate advertisments site with filtering and pagination support
+
+# Quickstart
+
+To set it up for local browsing, install dependencies:
+```bash
+$ pip install -r requirements.txt
+```
+Then, create and fill DB with sample data (json filepath argument is used to load data from it, defaults to __ads.json__):
+```bash
+$ python persistence.py --filepath <json ads filepath>
+```
+Finally, launch the server:
+```bash
+$ python server.py
+```
+Site will be available at [http://localhost:5000]()
+
 
 # Project Goals
 
