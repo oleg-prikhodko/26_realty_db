@@ -23,15 +23,29 @@ def make_pages_list(current_page, total_pages):
 
 @app.route("/")
 def ads_list():
+    oblast_district = request.args.get("oblast_district")
+    # TODO convert args to appropriate types
+    max_price = request.args.get("max_price")
     try:
+        min_price = int(request.args.get("min_price", 0))
+        new_building = bool(request.args.get("new_building", False))
         page = int(request.args.get("page", 1))
     except ValueError:
         page = 1
+        new_building = False
+        min_price = 0
 
     with DBManager() as db_manager:
-        total_pages = db_manager.get_total_pages()
-        ads = db_manager.get_ads(page=page)
-
+        total_pages = db_manager.get_total_pages(
+            oblast_district=oblast_district,
+            new_buildings_only=new_building,
+            min_price=min_price,
+        )
+        ads = db_manager.get_ads(
+            oblast_district=oblast_district,
+            new_buildings_only=new_building,
+            min_price=min_price,
+        )
         return render_template(
             "ads_list.html",
             ads=ads,
