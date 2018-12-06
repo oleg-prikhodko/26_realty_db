@@ -8,6 +8,7 @@ from math import ceil, inf
 import sqlalchemy as db
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.orm.exc import FlushError
 
 Base = declarative_base()
 engine = db.create_engine("sqlite:///ads.db", echo=False)
@@ -143,5 +144,5 @@ if __name__ == "__main__":
     with DBManager() as db_manager:
         try:
             db_manager.save_ads(load_ads_from_json(json_filepath))
-        except Exception as err:
+        except FlushError as err:
             sys.exit(err)
