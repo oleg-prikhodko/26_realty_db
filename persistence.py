@@ -25,6 +25,7 @@ class Ad(Base):
     construction_year = db.Column(db.Integer)
     rooms_number = db.Column(db.Integer)
     premise_area = db.Column(db.Float)
+    active = db.Column(db.Boolean)
 
     def __str__(self):
         return "Ad: {}, {}, {}, {}, {}".format(
@@ -60,6 +61,14 @@ class DBManager(AbstractContextManager):
         self.engine.dispose()
 
     def save_ads(self, ads):
+        for ad in ads:
+            ad.active = True
+
+        old_ads = self.session.query(Ad).all()
+        for old_ad in old_ads:
+            old_ad.active = False
+
+        self.session.add_all(old_ads)
         self.session.add_all(ads)
         self.session.commit()
 
@@ -129,6 +138,3 @@ class DBManager(AbstractContextManager):
 if __name__ == "__main__":
     with DBManager() as db_manager:
         db_manager.save_ads(load_ads_from_json())
-        ads = db_manager.get_ads(new_buildings_only=False)  # "Вологда"
-        for ad in ads:
-            print(ad)
