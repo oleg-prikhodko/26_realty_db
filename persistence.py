@@ -7,9 +7,13 @@ from math import ceil, inf
 
 import sqlalchemy as db
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import scoped_session, sessionmaker
 
 Base = declarative_base()
+engine = db.create_engine("sqlite:///ads.db", echo=False)
+Base.metadata.create_all(engine)
+session_factory = sessionmaker(bind=engine)
+Session = scoped_session(session_factory)
 
 
 class Ad(Base):
@@ -53,19 +57,13 @@ class DBManager(AbstractContextManager):
     MAX_ADS_PER_PAGE = 15
 
     def __enter__(self):
-        self.engine = db.create_engine("sqlite:///ads.db", echo=False)
-        Base.metadata.create_all(self.engine)
-        self.Session = sessionmaker()
-        self.Session.configure(bind=self.engine)
-        self.session = self.Session()
+        self.session = Session()
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         if exc_value is not None:
             self.session.rollback()
-        self.session.close()
-        self.Session.close_all()
-        self.engine.dispose()
+        Session.remove()
 
     def save_ads(self, ads):
         for ad in ads:
