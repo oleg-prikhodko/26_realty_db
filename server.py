@@ -3,6 +3,7 @@ import os
 from flask import Flask, render_template, request
 
 from persistence import DBManager
+from settlements import SETTLEMENTS
 
 app = Flask(__name__)
 
@@ -45,6 +46,7 @@ def ads_list():
             current_page=page,
             pages=make_pages_list(page, total_pages),
             total_pages=total_pages,
+            settlement_groups=SETTLEMENTS,
         )
 
 
