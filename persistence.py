@@ -46,6 +46,11 @@ def load_ads_from_json(json_filepath):
 
 
 class DBManager(AbstractContextManager):
+
+    MIN_PRICE = 0
+    MAX_PRICE = inf
+    MAX_ADS_PER_PAGE = 15
+
     def __enter__(self):
         self.engine = db.create_engine("sqlite:///ads.db", echo=False)
         Base.metadata.create_all(self.engine)
@@ -98,10 +103,10 @@ class DBManager(AbstractContextManager):
     def get_ads(
         self,
         oblast_district=None,
-        min_price=0,
-        max_price=inf,
+        min_price=MIN_PRICE,
+        max_price=MAX_PRICE,
         new_buildings_only=False,
-        max_ads=15,
+        max_ads=MAX_ADS_PER_PAGE,
         page=1,
     ):
         start = (page - 1) * max_ads
@@ -114,10 +119,10 @@ class DBManager(AbstractContextManager):
     def get_total_pages(
         self,
         oblast_district=None,
-        min_price=0,
-        max_price=inf,
+        min_price=MIN_PRICE,
+        max_price=MAX_PRICE,
         new_buildings_only=False,
-        max_ads=15,
+        max_ads=MAX_ADS_PER_PAGE,
     ):
         query = self.construct_query(
             oblast_district, min_price, max_price, new_buildings_only
