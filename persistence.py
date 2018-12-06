@@ -1,7 +1,7 @@
 import json
 from contextlib import AbstractContextManager
 from datetime import date
-from math import ceil
+from math import ceil, inf
 
 import sqlalchemy as db
 from sqlalchemy.ext.declarative import declarative_base
@@ -47,26 +47,30 @@ class DBManager(AbstractContextManager):
     def __enter__(self):
         self.engine = db.create_engine("sqlite:///ads.db", echo=False)
         Base.metadata.create_all(self.engine)
-        Session = sessionmaker()
-        Session.configure(bind=self.engine)
-        self.session = Session()
+        self.Session = sessionmaker()
+        self.Session.configure(bind=self.engine)
+        self.session = self.Session()
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         if exc_value is not None:
             self.session.rollback()
         self.session.close()
+        self.Session.close_all()
         self.engine.dispose()
 
     def save_ads(self, ads):
         self.session.add_all(ads)
         self.session.commit()
 
-    def construct_query(self, settlement, price, new_buildings_only):
+    def construct_query(
+        self,
+        oblast_district,
+        min_price,
+        max_price,
+        new_buildings_only,
+    ):
         query = self.session.query(Ad)
-
-        if settlement is not None:
-            query = query.filter_by(settlement=settlement)
 
         if new_buildings_only:
             year_difference = 2
@@ -77,26 +81,46 @@ class DBManager(AbstractContextManager):
                     Ad.construction_year >= two_years_ago,
                 )
             )
-        query = query.filter(Ad.price >= price)
+
+        if oblast_district is not None:
+            query = query.filter_by(oblast_district=oblast_district)
+
+        query = query.filter(Ad.price >= min_price, Ad.price <= max_price)
         return query
 
     def get_ads(
         self,
-        settlement=None,
-        price=0,
+        oblast_district=None,
+        min_price=0,
+        max_price=inf,
         new_buildings_only=False,
         max_ads=15,
         page=1,
     ):
         start = (page - 1) * max_ads
-        query = self.construct_query(settlement, price, new_buildings_only)
+        query = self.construct_query(
+            oblast_district,
+            min_price,
+            max_price,
+            new_buildings_only,
+        )
         ads = query.order_by(Ad.price)[start : start + max_ads]
         return ads
 
     def get_total_pages(
-        self, settlement=None, price=0, new_buildings_only=False, max_ads=15
+        self,
+        oblast_district=None,
+        min_price=0,
+        max_price=inf,
+        new_buildings_only=False,
+        max_ads=15,
     ):
-        query = self.construct_query(settlement, price, new_buildings_only)
+        query = self.construct_query(
+            oblast_district,
+            min_price,
+            max_price,
+            new_buildings_only,
+        )
         total_ads = query.count()
         total_pages = ceil(total_ads / max_ads)
         return total_pages
