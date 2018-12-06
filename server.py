@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, render_template, request
 
 from persistence import DBManager
@@ -40,4 +42,5 @@ def ads_list():
 
 
 if __name__ == "__main__":
-    app.run()
+    debug = bool(os.environ.get("FLASK_DEBUG", False))
+    app.run(debug=debug)
