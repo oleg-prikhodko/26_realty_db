@@ -1,3 +1,4 @@
+import argparse
 import json
 from contextlib import AbstractContextManager
 from datetime import date
@@ -37,7 +38,7 @@ class Ad(Base):
         )
 
 
-def load_ads_from_json(json_filepath="ads.json"):
+def load_ads_from_json(json_filepath):
     with open(json_filepath) as json_file:
         ads_data = json.load(json_file)
         ads = [Ad(**ad_data) for ad_data in ads_data]
@@ -73,11 +74,7 @@ class DBManager(AbstractContextManager):
         self.session.commit()
 
     def construct_query(
-        self,
-        oblast_district,
-        min_price,
-        max_price,
-        new_buildings_only,
+        self, oblast_district, min_price, max_price, new_buildings_only
     ):
         query = self.session.query(Ad)
 
@@ -109,10 +106,7 @@ class DBManager(AbstractContextManager):
     ):
         start = (page - 1) * max_ads
         query = self.construct_query(
-            oblast_district,
-            min_price,
-            max_price,
-            new_buildings_only,
+            oblast_district, min_price, max_price, new_buildings_only
         )
         ads = query.order_by(Ad.price)[start : start + max_ads]
         return ads
@@ -126,10 +120,7 @@ class DBManager(AbstractContextManager):
         max_ads=15,
     ):
         query = self.construct_query(
-            oblast_district,
-            min_price,
-            max_price,
-            new_buildings_only,
+            oblast_district, min_price, max_price, new_buildings_only
         )
         total_ads = query.count()
         total_pages = ceil(total_ads / max_ads)
@@ -137,5 +128,13 @@ class DBManager(AbstractContextManager):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--filepath",
+        help="Json file from which advertisments will be loaded",
+        default="ads.json",
+    )
+    args = parser.parse_args()
+    json_filepath = args.filepath
     with DBManager() as db_manager:
-        db_manager.save_ads(load_ads_from_json())
+        db_manager.save_ads(load_ads_from_json(json_filepath))
