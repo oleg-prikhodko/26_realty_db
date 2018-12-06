@@ -95,6 +95,7 @@ class DBManager(AbstractContextManager):
             query = query.filter_by(oblast_district=oblast_district)
 
         query = query.filter(Ad.price >= min_price, Ad.price <= max_price)
+        query = query.filter(Ad.active.is_(True))
         return query
 
     def get_ads(
