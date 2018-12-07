@@ -86,12 +86,11 @@ class DBManager(AbstractContextManager):
         if new_buildings_only:
             year_difference = 2
             two_years_ago = date.today().year - year_difference
-            query = query.filter(
-                db.or_(
-                    Ad.under_construction.is_(True),
-                    Ad.construction_year >= two_years_ago,
-                )
+            new_building_condition = db.or_(
+                Ad.under_construction.is_(True),
+                Ad.construction_year >= two_years_ago,
             )
+            query = query.filter(new_building_condition)
 
         if oblast_district is not None:
             query = query.filter_by(oblast_district=oblast_district)
