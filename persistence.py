@@ -22,17 +22,17 @@ class Ad(Base):
 
     id = db.Column(db.Integer, primary_key=True)
     settlement = db.Column(db.String)
-    under_construction = db.Column(db.Boolean)
+    under_construction = db.Column(db.Boolean, index=True)
     description = db.Column(db.String)
-    price = db.Column(db.Integer)
-    oblast_district = db.Column(db.String)
+    price = db.Column(db.Integer, index=True)
+    oblast_district = db.Column(db.String, index=True)
     living_area = db.Column(db.Float)
     has_balcony = db.Column(db.Boolean)
     address = db.Column(db.String)
-    construction_year = db.Column(db.Integer)
+    construction_year = db.Column(db.Integer, index=True)
     rooms_number = db.Column(db.Integer)
     premise_area = db.Column(db.Float)
-    active = db.Column(db.Boolean)
+    active = db.Column(db.Boolean, index=True)
 
     def __str__(self):
         return "Ad: {}, {}, {}, {}, {}".format(
