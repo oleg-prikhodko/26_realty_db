@@ -8,7 +8,7 @@ To set it up for local browsing, install dependencies:
 ```bash
 $ pip install -r requirements.txt
 ```
-Then, create and fill DB with sample data (json filepath argument is used to load data from it, defaults to __ads.json__):
+Then, create and fill DB with [sample data](https://devman.org/fshare/1503424990/3/) (json filepath argument is used to load data from it, defaults to __ads.json__):
 ```bash
 $ python persistence.py --filepath <json ads filepath>
 ```
