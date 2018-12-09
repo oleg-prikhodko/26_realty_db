@@ -140,6 +140,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     json_filepath = args.filepath
+    Base.metadata.create_all(engine)
     with DBManager() as db_manager:
         try:
             db_manager.save_ads(load_ads_from_json(json_filepath))
