@@ -74,8 +74,8 @@ class DBManager(AbstractContextManager):
         for old_ad in old_ads:
             old_ad.active = False
 
-        self.session.add_all(old_ads)
-        self.session.add_all(ads)
+        self.session.bulk_save_objects(old_ads)
+        self.session.bulk_save_objects(ads)
         self.session.commit()
 
     def construct_query(
