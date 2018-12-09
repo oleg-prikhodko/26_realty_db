@@ -115,20 +115,18 @@ class DBManager(AbstractContextManager):
         ads = query.order_by(Ad.price)[start : start + max_ads]
         return ads
 
-    def get_total_pages(
+    def get_total_ads(
         self,
         oblast_district=None,
         min_price=MIN_PRICE,
         max_price=MAX_PRICE,
         new_buildings_only=False,
-        max_ads=MAX_ADS_PER_PAGE,
     ):
         query = self.construct_query(
             oblast_district, min_price, max_price, new_buildings_only
         )
         total_ads = query.count()
-        total_pages = ceil(total_ads / max_ads)
-        return total_pages
+        return total_ads
 
 
 if __name__ == "__main__":
