@@ -9,6 +9,8 @@ import sqlalchemy as db
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.orm.exc import FlushError
+from sqlalchemy.exc import IntegrityError
+
 
 Base = declarative_base()
 engine = db.create_engine("sqlite:///ads.db", echo=False)
@@ -70,11 +72,9 @@ class DBManager(AbstractContextManager):
         for ad in ads:
             ad.active = True
 
-        old_ads = self.session.query(Ad).all()
-        for old_ad in old_ads:
-            old_ad.active = False
-
-        self.session.bulk_save_objects(old_ads)
+        self.session.execute(
+            db.update(Ad.__table__).values(active=False)
+        )
         self.session.bulk_save_objects(ads)
         self.session.commit()
 
@@ -142,5 +142,5 @@ if __name__ == "__main__":
     with DBManager() as db_manager:
         try:
             db_manager.save_ads(load_ads_from_json(json_filepath))
-        except FlushError as err:
+        except (FlushError, IntegrityError) as err:
             sys.exit(err)
