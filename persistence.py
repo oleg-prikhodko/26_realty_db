@@ -6,11 +6,10 @@ from datetime import date
 from math import ceil, inf
 
 import sqlalchemy as db
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.orm.exc import FlushError
-from sqlalchemy.exc import IntegrityError
-
 
 Base = declarative_base()
 engine = db.create_engine("sqlite:///ads.db", echo=False)
@@ -72,11 +71,9 @@ class DBManager(AbstractContextManager):
         for ad in ads:
             ad.active = True
 
-        self.session.execute(
-            db.update(Ad.__table__).values(active=False)
-        )
-        self.session.bulk_save_objects(ads)
-        self.session.commit()
+        with self.session.begin_nested():
+            self.session.execute(db.update(Ad.__table__).values(active=False))
+            self.session.bulk_save_objects(ads)
 
     def construct_query(
         self, oblast_district, min_price, max_price, new_buildings_only
